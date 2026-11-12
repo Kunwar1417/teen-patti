@@ -17,9 +17,10 @@ A single-file web app (`index.html`) for tracking bets during Teen Patti nights 
 - Wheel looks like a casino chip: gold rim with white dashes, dark center chip showing TOTAL POT and ROUND. Slice labels show PACKED or 👁 SEEN.
 - Header: brand + three badge icons: Hand rankings (cards + gold bulb badge), Players (people + gold + badge), Settings (gear).
 - Fixed bottom dock: on the Table tab an action row Undo | gold action | Reset (gold reads "Collect Boot" on an empty pot, "Declare Winner" once money is in), and always a bottom tab bar Table | Scores | History. `body.tab-live` adjusts page padding and toast position.
-- Table tab: stake card, wheel, player cards (eye toggle = blind/seen, Pack pill), then a fold-out "Round details" (the old Live Round table; open state in `teenpatti-details`).
+- Table tab: stake card, wheel, player cards (Pack pill; the eye toggle for blind/seen appears only when Blind mode is on), then a fold-out "Round details" (the old Live Round table; open state in `teenpatti-details`).
 - Scores tab ends with a quiet "Delete all rounds and start over" link (the only place to reset the whole game besides Settle Up's "Start New Game").
-- Settings sheet: Language (English | हिंदी), Sound switch, Boot & pot limit row, about/privacy/version.
+- Settings sheet: rows with icon tiles (`.sico`): Language (English | हिंदी), Sound switch (speaker icon turns gold when on), Table rules row (boot, pot limit, Blind mode), then about/privacy/version.
+- Table rules sheet (tap the current bet, or Settings → Table rules): starting boot, pot limit, Blind mode switch.
 - Hindi: `html[lang="hi"]` removes letter-spacing from small caps labels (Devanagari must never be letter-spaced) and nudges small text up a size.
 
 ## Data model (localStorage key `teenpatti-tracker-v1`; device prefs: `teenpatti-sound`, `teenpatti-lang`, `teenpatti-details`)
@@ -30,11 +31,12 @@ S = {
   nextId: 4,
   boot: 10,                // starting boot, ₹1 to ₹1,00,000; v2 saves have none and migrate to 10
   potLimit: 0,             // 0 = no limit; otherwise alert + open Declare when the pot reaches it
+  blindMode: false,        // table rule, default OFF (most groups play seen). Off = no eye buttons, every tap adds the bet. Survives New Game.
   bet: 10,                 // current (blind) bet; never below boot; resets to boot each round
   round: 1,                // current round number
   contrib: {p1: 30, ...},  // this round's money per player
   packed: {p2: true},      // this round's packed players
-  seen: {p3: true},        // this round's seen players: their taps add 2 × bet. v3 saves have none.
+  seen: {p3: true},        // this round's seen players: their taps add 2 × bet. Ignored unless blindMode (isSeen checks both). v3 saves have none.
   log: [{t:'bet',id,amt} | {t:'boot',ids,amt} | {t:'pack',id} | {t:'unpack',id} | {t:'seen',id} | {t:'blind',id}],  // for Undo, cleared each round
   history: [{
     round, pot, at,
@@ -51,10 +53,10 @@ S = {
 
 ## Features (all working)
 - Collect Boot (gold dock button on an empty round): adds the boot for every player who isn't packed, as one undoable step.
-- Tap a wheel slice or a player card to add that player's bet: the current bet if blind, 2× if seen. Chip flies into the pot, pot counts up.
-- Blind / Seen: eye button on each player card. Stake card shows "Seen players pay ₹X" while anyone is seen. Undoable; cleared each round; saved in history and restored by Reopen.
+- Tap a wheel slice or a player card to add that player's bet (the current bet; 2× for seen players in Blind mode). Chip flies into the pot, pot counts up.
+- Blind mode (Table rules switch, off by default): everyone starts each round blind; the eye button on a card marks them seen and their taps become 2×. Stake card shows "Seen players pay ₹X" while anyone is seen. Undoable; cleared each round; saved in history and restored by Reopen. Turning Blind mode off clears the round's seen marks (bets stay). With it off, cards read "Tap +₹X".
 - ½ Half (never below the boot) and 2× Double for the bet.
-- Tap the current bet (or Settings → Boot & pot limit) to open Table settings: starting boot (presets + typed amount) and optional pot limit (presets at 128×, 256×, 512×, 1024× the boot). Changing the boot mid-round keeps existing bets.
+- Tap the current bet (or Settings → Table rules) to open Table rules: starting boot (presets + typed amount) and optional pot limit (presets at 128×, 256×, 512×, 1024× the boot). Changing the boot mid-round keeps existing bets.
 - Pot limit reached: brass alert, toast, then Declare Winner opens.
 - Screen wake lock while the app is open (re-requested when it becomes visible again).
 - Pack / Back in per player. Packed players can't bet or win. If only one player is left in, the app opens Declare Winner with them preselected.
@@ -81,7 +83,7 @@ S = {
 - Render: `renderAll`, `renderPlayers`, `renderTabs`, `switchTab`, `renderDetails`, `liveTable`, `scoreHTML`, `historyHTML`
 - Actions: `addBet`, `collectBoot`, `potAlerts`, `togglePack`, `toggleSeen`, `undo`, `setBet`, `doResetRound`, `openDeclare`, `award`, `showWin`, `reopenRound`
 - Settlement: `aggregate`, `transfers`, `shareText`, `openSettle`, `newGame`
-- Sheets: `openSheet`, `closeSheet`, `confirmSheet`, `confirmResetAll`, `openBoot` (Table settings), `openEdit` + `bindReorder` + `movePlayer`, `openRanks`, `openSettings`
+- Sheets: `openSheet`, `closeSheet`, `confirmSheet`, `confirmResetAll`, `openBoot` (Table rules: boot, pot limit, Blind mode), `openEdit` + `bindReorder` + `movePlayer`, `openRanks`, `openSettings`
 
 ## Store builds (`native/`, not in the public repo)
 - Capacitor 8 project, appId `com.kunwar1417.teenpatti` (permanent). `npm run sync` copies `../index.html` into `native/www/`, bundles the Google Fonts locally (latin, latin-ext for ₹, devanagari for Hindi; offline, no network) and injects `capacitor.js`.

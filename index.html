@@ -267,8 +267,10 @@ tfoot td{background:#FFF8E6;color:var(--gold-deep);font-weight:800;border-top:1p
 .setgroup{background:var(--mist);border-radius:18px;overflow:hidden;margin-bottom:14px}
 .setrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;width:100%;min-height:60px;text-align:left;border-bottom:1px solid var(--line)}
 .setrow:last-child{border-bottom:0}
-.sl{font-size:15px;font-weight:800;min-width:0}
-.sl small{display:block;font-size:12.5px;color:var(--muted);font-weight:600;margin-top:2px}
+.sl{display:flex;align-items:center;gap:12px;font-size:15px;font-weight:800;min-width:0}
+.sl small{display:block;font-size:12.5px;color:var(--muted);font-weight:600;margin-top:2px;line-height:1.4}
+.sico{flex:none;width:36px;height:36px;border-radius:11px;background:var(--paper);color:var(--ink);display:grid;place-items:center;box-shadow:inset 0 0 0 1px var(--line);transition:background .15s,color .15s}
+.sico.on{background:var(--gold-soft);color:var(--gold-deep);box-shadow:inset 0 0 0 1px #EED9A0}
 .seg{display:flex;flex:none;background:var(--paper);border-radius:12px;padding:3px;gap:3px;box-shadow:inset 0 0 0 1px var(--line)}
 .seg button{padding:8px 14px;border-radius:9px;font-size:14px;font-weight:800;color:var(--muted);transition:background .15s,color .15s}
 .seg button.on{background:var(--ink);color:#fff}
@@ -462,7 +464,7 @@ const I18N={
 en:{
   hint:'Tap a colored section to add a bet.',
   half:'HALF', double:'DOUBLE', currentBet:'Current bet', boot:'Boot {amt}', seenSub:'Seen players pay {amt}',
-  stakeAria:'Change the starting boot and pot limit', wheelAria:'Betting wheel',
+  stakeAria:'Change the table rules: boot, pot limit and Blind mode', wheelAria:'Betting wheel',
   ranksAria:'Hand rankings', playersAria:'Add or edit players', settingsAria:'Settings',
   undo:'Undo', reset:'Reset', undoAria:'Undo last action', resetAria:'Reset round',
   tabTable:'Table', tabScores:'Scores', tabHistory:'History',
@@ -471,7 +473,7 @@ en:{
   collectSub:'{boot} from {n} players · {total} pot', bringBack:'Bring players back in first',
   drum:'And the pot goes to',
   totalPot:'TOTAL POT', roundN:'ROUND {n}', packedTag:'PACKED', seenTag:'SEEN',
-  cardBlind:'Blind +{amt}', cardSeen:'Seen +{amt}', packedLabel:'PACKED',
+  cardBlind:'Blind +{amt}', cardSeen:'Seen +{amt}', cardTap:'Tap +{amt}', packedLabel:'PACKED',
   pack:'Pack', backIn:'Back in', addBetAria:'Add bet for {name}',
   seeAria:'{name} is blind. Tap when they look at their cards', blindAria:'{name} has seen their cards. Tap to make them blind again',
   roundDetails:'Round details', detailsSum:'Round {r} · {act} of {n} in · Pot {pot}',
@@ -525,18 +527,20 @@ en:{
   hasBets:'Has bets this round, so they can’t be removed until the round ends or is reset.',
   addPlayer:'+ Add Player', done:'Done', need2:'You need at least 2 players', finishFirst:'Reset or finish the round first',
   max8:'8 players is the maximum', swapped:'Swapped colors with {name}', moved:'{name} moved to seat {n}',
-  tsTitle:'Table settings', tsSub:'The boot is what every player puts in before the cards are dealt. Each new round starts with the bet at the boot.',
+  tsTitle:'Table rules', tsSub:'The boot is what every player puts in before the cards are dealt. Each new round starts with the bet at the boot.',
+  blindMode:'Blind mode', blindModeSub:'Everyone starts blind. Tap the eye on a player once they look at their cards, and their bets become 2×. Leave it off if your table always plays seen.',
+  blindOn:'Blind mode on', blindOff:'Blind mode off',
   startingBoot:'Starting boot', potLimit:'Pot limit', optional:'Optional', noLimit:'No limit',
   bootHint:'Each round opens with {boot} × {n} players = {total} in the pot.', enterBoot:'Enter a boot of at least ₹1.',
   limitHint:'When the pot reaches the limit, everyone still in shows their cards. The app alerts you and asks who won.',
   save:'Save', bootMax:'The boot can be at most {amt}', limitBigger:'The pot limit has to be bigger than the boot',
-  tsSaved:'Table settings saved', bootNow:'Boot is now {amt}', bootNowMid:'Boot is now {amt}. Bets already in this round stay as they are.',
+  tsSaved:'Table rules saved', bootNow:'Boot is now {amt}', bootNowMid:'Boot is now {amt}. Bets already in this round stay as they are.',
   ranksTitle:'Hand Rankings', ranksSub:'At the show, the higher hand takes the pot. Number 1 beats everything below it.',
   strongest:'▲ STRONGEST', chance:'CHANCE', weakest:'▼ WEAKEST',
   ranksNote:'<b>Card order:</b> A (high), K, Q, J, 10, 9, 8, 7, 6, 5, 4, 3, 2. Suits don’t rank.<br><br><b>House rules vary:</b> some groups play A-2-3 as the top sequence. Agree on it before the game starts.',
   gotIt:'Got it',
-  settingsTitle:'Settings', language:'Language', sound:'Sound', soundSub:'Chips, fanfare and alerts', tableRow:'Boot & pot limit',
-  tableRowSub:'Boot {boot} · {limit}', noPotLimit:'no pot limit', savedNote:'Your scores are saved only on this device.',
+  settingsTitle:'Settings', language:'Language', sound:'Sound', soundSub:'Chips, fanfare and alerts', tableRow:'Table rules',
+  tableRowSub:'Boot {boot} · {limit} · {blind}', noPotLimit:'no pot limit', savedNote:'Your scores are saved only on this device.',
   privacy:'Privacy policy', madeBy:'Teen Patti Hisaab v{v} · Never Settle Lab', soundOn:'Sound on', soundOff:'Sound off',
   ranks:[
     {t:'Trail (Trio)',d:'Three cards of the same rank. A-A-A is the best hand in the game; 2-2-2 is the lowest trail.'},
@@ -550,7 +554,7 @@ en:{
 hi:{
   hint:'दांव लगाने के लिए रंगीन हिस्से पर टैप करें।',
   half:'आधा', double:'दोगुना', currentBet:'मौजूदा दांव', boot:'बूट {amt}', seenSub:'सीन खिलाड़ी देंगे {amt}',
-  stakeAria:'शुरुआती बूट और पॉट लिमिट बदलें', wheelAria:'दांव का पहिया',
+  stakeAria:'टेबल के नियम बदलें: बूट, पॉट लिमिट और ब्लाइंड मोड', wheelAria:'दांव का पहिया',
   ranksAria:'पत्तों की रैंकिंग', playersAria:'खिलाड़ी जोड़ें या बदलें', settingsAria:'सेटिंग्स',
   undo:'पूर्ववत', reset:'रीसेट', undoAria:'आखिरी काम पूर्ववत करें', resetAria:'राउंड रीसेट करें',
   tabTable:'टेबल', tabScores:'स्कोर', tabHistory:'इतिहास',
@@ -559,7 +563,7 @@ hi:{
   collectSub:'{n} खिलाड़ियों से {boot} · पॉट {total}', bringBack:'पहले खिलाड़ियों को वापस लाएं',
   drum:'और पॉट जाता है',
   totalPot:'कुल पॉट', roundN:'राउंड {n}', packedTag:'पैक', seenTag:'सीन',
-  cardBlind:'ब्लाइंड +{amt}', cardSeen:'सीन +{amt}', packedLabel:'पैक',
+  cardBlind:'ब्लाइंड +{amt}', cardSeen:'सीन +{amt}', cardTap:'टैप +{amt}', packedLabel:'पैक',
   pack:'पैक', backIn:'वापस', addBetAria:'{name} के लिए दांव लगाएं',
   seeAria:'{name} ब्लाइंड हैं। पत्ते देखने पर टैप करें', blindAria:'{name} ने पत्ते देख लिए हैं। फिर ब्लाइंड करने के लिए टैप करें',
   roundDetails:'राउंड की जानकारी', detailsSum:'राउंड {r} · {n} में से {act} खेल रहे · पॉट {pot}',
@@ -613,18 +617,20 @@ hi:{
   hasBets:'इस राउंड में दांव लगा है, इसलिए राउंड खत्म या रीसेट होने तक हटा नहीं सकते।',
   addPlayer:'+ खिलाड़ी जोड़ें', done:'हो गया', need2:'कम से कम 2 खिलाड़ी चाहिए', finishFirst:'पहले राउंड रीसेट करें या खत्म करें',
   max8:'ज़्यादा से ज़्यादा 8 खिलाड़ी', swapped:'{name} से रंग बदला', moved:'{name} अब सीट {n} पर',
-  tsTitle:'टेबल सेटिंग्स', tsSub:'बूट वह रकम है जो हर खिलाड़ी पत्ते बंटने से पहले डालता है। हर नया राउंड बूट के दांव से शुरू होता है।',
+  tsTitle:'टेबल के नियम', tsSub:'बूट वह रकम है जो हर खिलाड़ी पत्ते बंटने से पहले डालता है। हर नया राउंड बूट के दांव से शुरू होता है।',
+  blindMode:'ब्लाइंड मोड', blindModeSub:'सब ब्लाइंड से शुरू करते हैं। कोई खिलाड़ी पत्ते देखे तो उसकी आंख पर टैप करें, उसके दांव 2× हो जाएंगे। अगर आपकी टेबल हमेशा सीन खेलती है तो इसे बंद रखें।',
+  blindOn:'ब्लाइंड मोड चालू', blindOff:'ब्लाइंड मोड बंद',
   startingBoot:'शुरुआती बूट', potLimit:'पॉट लिमिट', optional:'वैकल्पिक', noLimit:'कोई लिमिट नहीं',
   bootHint:'हर राउंड {boot} × {n} खिलाड़ी = पॉट में {total} से शुरू होगा।', enterBoot:'कम से कम ₹1 का बूट डालें।',
   limitHint:'पॉट लिमिट तक पहुंचते ही बचे हुए सभी खिलाड़ी पत्ते दिखाते हैं। ऐप आपको बताएगा और पूछेगा कि कौन जीता।',
   save:'सेव करें', bootMax:'बूट ज़्यादा से ज़्यादा {amt} हो सकता है', limitBigger:'पॉट लिमिट बूट से बड़ी होनी चाहिए',
-  tsSaved:'टेबल सेटिंग्स सेव हो गईं', bootNow:'बूट अब {amt} है', bootNowMid:'बूट अब {amt} है। इस राउंड के दांव जैसे हैं वैसे रहेंगे।',
+  tsSaved:'टेबल के नियम सेव हो गए', bootNow:'बूट अब {amt} है', bootNowMid:'बूट अब {amt} है। इस राउंड के दांव जैसे हैं वैसे रहेंगे।',
   ranksTitle:'पत्तों की रैंकिंग', ranksSub:'शो पर ऊंचा हाथ पॉट जीतता है। नंबर 1 अपने नीचे वाले सभी हाथों से बड़ा है।',
   strongest:'▲ सबसे मज़बूत', chance:'संभावना', weakest:'▼ सबसे कमज़ोर',
   ranksNote:'<b>पत्तों का क्रम:</b> A (सबसे ऊंचा), K, Q, J, 10, 9, 8, 7, 6, 5, 4, 3, 2। सूट की कोई रैंक नहीं होती।<br><br><b>घर के नियम अलग हो सकते हैं:</b> कुछ ग्रुप A-2-3 को सबसे ऊंचा सीक्वेंस मानते हैं। खेल शुरू होने से पहले तय कर लें।',
   gotIt:'समझ गए',
-  settingsTitle:'सेटिंग्स', language:'भाषा', sound:'आवाज़', soundSub:'चिप्स, जीत की धुन और अलर्ट', tableRow:'बूट और पॉट लिमिट',
-  tableRowSub:'बूट {boot} · {limit}', noPotLimit:'कोई पॉट लिमिट नहीं', savedNote:'आपके स्कोर सिर्फ़ इसी डिवाइस पर सेव होते हैं।',
+  settingsTitle:'सेटिंग्स', language:'भाषा', sound:'आवाज़', soundSub:'चिप्स, जीत की धुन और अलर्ट', tableRow:'टेबल के नियम',
+  tableRowSub:'बूट {boot} · {limit} · {blind}', noPotLimit:'कोई पॉट लिमिट नहीं', savedNote:'आपके स्कोर सिर्फ़ इसी डिवाइस पर सेव होते हैं।',
   privacy:'प्राइवेसी पॉलिसी', madeBy:'Teen Patti Hisaab v{v} · Never Settle Lab', soundOn:'आवाज़ चालू', soundOff:'आवाज़ बंद',
   ranks:[
     {t:'ट्रेल (तीन एक जैसे)',d:'एक ही रैंक के तीन पत्ते। A-A-A सबसे बड़ा हाथ है; 2-2-2 सबसे छोटा ट्रेल।'},
@@ -648,9 +654,9 @@ function t(k,v){
 function defaultPlayers(){
   return [{id:'p1',name:t('defYou'),color:'#E8B93A'},{id:'p2',name:t('defPlayer',{n:2}),color:'#1FB5A6'},{id:'p3',name:t('defPlayer',{n:3}),color:'#3B82F6'}];
 }
-function freshState(players,nextId,boot,potLimit){
+function freshState(players,nextId,boot,potLimit,blindMode){
   const b=boot||DEFAULT_BOOT;
-  return {v:4,players:players||defaultPlayers(),nextId:nextId||4,boot:b,potLimit:potLimit||0,bet:b,round:1,contrib:{},packed:{},seen:{},log:[],history:[],tab:'live',settled:{}};
+  return {v:4,players:players||defaultPlayers(),nextId:nextId||4,boot:b,potLimit:potLimit||0,blindMode:!!blindMode,bet:b,round:1,contrib:{},packed:{},seen:{},log:[],history:[],tab:'live',settled:{}};
 }
 const clampBoot=v=>Math.min(MAX_BOOT,Math.max(MIN_BOOT,Math.round(Number(v)||DEFAULT_BOOT)));
 function normRound(r){
@@ -667,6 +673,7 @@ function load(){
     if(!s || !Array.isArray(s.players) || s.players.length<MIN_PLAYERS) return freshState();
     s.contrib=s.contrib||{}; s.packed=s.packed||{}; s.settled=s.settled||{};
     s.seen=(s.seen&&typeof s.seen==='object')?s.seen:{};          // v3 and older have no blind/seen
+    s.blindMode=!!s.blindMode;                                    // off unless the table turned it on (early v1.1 saves have no flag)
     s.log=(Array.isArray(s.log)?s.log:[]).map(x=>x.t?x:{t:'bet',id:x.id,amt:x.amt});
     s.history=(Array.isArray(s.history)?s.history:[]).map(normRound);
     s.boot=clampBoot(s.boot);                                  // v2 saves have no boot: they were always ₹10
@@ -693,7 +700,7 @@ const pot=()=>Object.values(S.contrib).reduce((a,b)=>a+(b||0),0);
 const paid=id=>S.contrib[id]||0;
 const playerById=id=>S.players.find(p=>p.id===id)||null;
 const isPacked=id=>!!S.packed[id];
-const isSeen=id=>!!S.seen[id];
+const isSeen=id=>S.blindMode&&!!S.seen[id];           // seen only exists when the table plays Blind mode
 const betFor=id=>S.bet*(isSeen(id)?2:1);             // seen players pay double the current (blind) bet
 const active=()=>S.players.filter(p=>!isPacked(p.id));
 const nameFor=(id,fb)=>{const p=playerById(id);return p?p.name:(fb||t('playerFallback'));};
@@ -1007,6 +1014,12 @@ const EYE_SHUT='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stro
 const CHEV='<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>';
 const GRIP='<svg width="14" height="20" viewBox="0 0 14 20" fill="currentColor" aria-hidden="true"><circle cx="4" cy="4" r="1.8"/><circle cx="10" cy="4" r="1.8"/><circle cx="4" cy="10" r="1.8"/><circle cx="10" cy="10" r="1.8"/><circle cx="4" cy="16" r="1.8"/><circle cx="10" cy="16" r="1.8"/></svg>';
 
+/* Settings row icons (20px, stroke = currentColor). */
+const ICON_SND_ON='<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18.3 6.3a8 8 0 0 1 0 11.4"/></svg>';
+const ICON_SND_OFF='<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="m16 9.5 5 5M21 9.5l-5 5"/></svg>';
+const ICON_GLOBE='<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>';
+const ICON_RULES=CHIPS_ICON.replace('width="20" height="20"','width="19" height="19"');
+const ICON_EYE=EYE_OPEN.replace('width="18" height="18"','width="19" height="19"');
 function applyStatic(){
   document.documentElement.lang=LANG;
   document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent=t(el.getAttribute('data-i18n')); });
@@ -1041,10 +1054,10 @@ function renderPlayers(hitId){
   const el=$('#players');
   el.innerHTML=S.players.map(p=>{
     const pk=isPacked(p.id), sn=isSeen(p.id), nm=esc(p.name);
-    const sub=pk?`<span class="tag-packed">${t('packedLabel')}</span>`:esc(t(sn?'cardSeen':'cardBlind',{amt:money(betFor(p.id))}));
+    const sub=pk?`<span class="tag-packed">${t('packedLabel')}</span>`:esc(t(!S.blindMode?'cardTap':sn?'cardSeen':'cardBlind',{amt:money(betFor(p.id))}));
     return `<div class="pcard${pk?' packed':''}${sn&&!pk?' seen':''}${p.id===hitId?' hit':''}" role="button" tabindex="0" data-id="${esc(p.id)}" style="--c:${p.color}" aria-label="${esc(t('addBetAria',{name:p.name}))}">
       <div class="pc-head">${avatar(p.name,p.color)}<div class="pc-name"><b>${nm}</b><small>${sub}</small></div>
-        <button class="eye${sn?' on':''}" data-seen="${esc(p.id)}" aria-pressed="${sn}" aria-label="${esc(t(sn?'blindAria':'seeAria',{name:p.name}))}">${sn?EYE_OPEN:EYE_SHUT}</button></div>
+        <button class="eye${sn?' on':''}"${S.blindMode?'':' hidden'} data-seen="${esc(p.id)}" aria-pressed="${sn}" aria-label="${esc(t(sn?'blindAria':'seeAria',{name:p.name}))}">${sn?EYE_OPEN:EYE_SHUT}</button></div>
       <div class="pc-foot"><span class="pc-amt">${money(paid(p.id))}</span><button class="pack" data-pack="${esc(p.id)}">${esc(t(pk?'backIn':'pack'))}</button></div>
     </div>`;
   }).join('');
@@ -1197,7 +1210,7 @@ function togglePack(id){
 }
 /* Blind / Seen: once a player looks at their cards, every tap for them adds 2x the current bet. */
 function toggleSeen(id){
-  const p=playerById(id); if(!p||isPacked(id)) return;
+  const p=playerById(id); if(!p||isPacked(id)||!S.blindMode) return;
   if(isSeen(id)){ delete S.seen[id]; S.log.push({t:'blind',id}); toast(t('blindToast',{name:p.name})); }
   else{ S.seen[id]=true; S.log.push({t:'seen',id}); toast(t('seenToast',{name:p.name,amt:money(betFor(id))})); }
   save(); renderAll(); sfx.flip(); buzz(10);
@@ -1393,7 +1406,7 @@ function copyText(x){
     try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(x).then(()=>res(true),fallback); else fallback(); }catch(e){ fallback(); }
   });
 }
-function newGame(){ S=freshState(S.players,S.nextId,S.boot,S.potLimit); openRounds.clear(); histLimit=12; save(); renderAll(); sfx.shuffle(); toast(t('newGameToast')); }
+function newGame(){ S=freshState(S.players,S.nextId,S.boot,S.potLimit,S.blindMode); openRounds.clear(); histLimit=12; save(); renderAll(); sfx.shuffle(); toast(t('newGameToast')); }
 
 /* ---- Edit players (hold the grip and drag to change seat order) ---- */
 function movePlayer(from,to){
@@ -1502,7 +1515,7 @@ function openEdit(){
 /* ---- Table settings: starting boot + pot limit ---- */
 function openBoot(){
   sfx.flip();
-  let boot=S.boot, limit=S.potLimit;
+  let boot=S.boot, limit=S.potLimit, blind=S.blindMode;
   const BOOTS=[1,2,5,10,20,50,100,500], MULTS=[128,256,512,1024];
   const digits=v=>parseInt(String(v).replace(/\D/g,''),10)||0;
   openSheet(el=>{
@@ -1516,8 +1529,11 @@ function openBoot(){
         <div class="money-in"><span>₹</span><input id="limitIn" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="9" autocomplete="off" enterkeyhint="done" placeholder="${esc(t('noLimit'))}" value="${limit||''}"></div>
         <div class="presets" id="limitPre"></div>
         <div class="ehint">${esc(t('limitHint'))}</div></div>
+      <div class="setgroup"><div class="setrow"><span class="sl"><span class="sico">${ICON_EYE}</span><span>${esc(t('blindMode'))}<small>${esc(t('blindModeSub'))}</small></span></span>
+        <button class="switch${blind?' on':''}" id="blindSw" role="switch" aria-checked="${blind}" aria-label="${esc(t('blindMode'))}"><i></i></button></div></div>
       <div class="stack"><button class="btn gold big" id="bSave">${esc(t('save'))}</button><button class="btn ghost" id="bCancel">${esc(t('cancel'))}</button></div>`;
-    const bi=el.querySelector('#bootIn'), li=el.querySelector('#limitIn');
+    const bi=el.querySelector('#bootIn'), li=el.querySelector('#limitIn'), sw=el.querySelector('#blindSw');
+    sw.addEventListener('click',()=>{ blind=!blind; sw.classList.toggle('on',blind); sw.setAttribute('aria-checked',blind); sfx.tick(); });
     const paint=()=>{
       el.querySelector('#bootPre').innerHTML=BOOTS.map(b=>`<button class="preset${b===boot?' sel':''}" data-b="${b}">${money(b)}</button>`).join('');
       el.querySelector('#limitPre').innerHTML=`<button class="preset${!limit?' sel':''}" data-l="0">${esc(t('noLimit'))}</button>`+
@@ -1536,12 +1552,14 @@ function openBoot(){
       if(boot<MIN_BOOT){ sfx.err(); toast(t('enterBoot')); bi.focus(); return; }
       if(boot>MAX_BOOT){ sfx.err(); toast(t('bootMax',{amt:money(MAX_BOOT)})); bi.focus(); return; }
       if(limit&&limit<=boot){ sfx.err(); toast(t('limitBigger')); li.focus(); return; }
-      const oldBoot=S.boot, empty=!S.log.length&&pot()<=0;
-      S.boot=boot; S.potLimit=limit||0;
+      const oldBoot=S.boot, oldBlind=S.blindMode, empty=!S.log.length&&pot()<=0;
+      S.boot=boot; S.potLimit=limit||0; S.blindMode=blind;
+      // Turning Blind mode off drops this round's seen marks; bets already placed stay as they are.
+      if(!blind){ S.seen={}; S.log=S.log.filter(x=>x.t!=='seen'&&x.t!=='blind'); }
       S.bet=empty?boot:Math.min(MAX_BET,Math.max(S.bet,boot));
       save(); closeSheet(); renderAll();
       if(boot>oldBoot) sfx.stackUp(); else if(boot<oldBoot) sfx.stackDown(); else sfx.chime();
-      toast(boot===oldBoot?t('tsSaved'):t(empty?'bootNow':'bootNowMid',{amt:money(boot)}));
+      toast(boot!==oldBoot?t(empty?'bootNow':'bootNowMid',{amt:money(boot)}):blind!==oldBlind?t(blind?'blindOn':'blindOff'):t('tsSaved'));
       const bv=$('#betVal'); bv.classList.remove('bump'); void bv.offsetWidth; bv.classList.add('bump');
     });
   });
@@ -1583,11 +1601,11 @@ function openSettings(){
     const lim=S.potLimit?t('limitAmt',{amt:money(S.potLimit)}):t('noPotLimit');
     el.innerHTML=`<div class="grab"></div><h3>${esc(t('settingsTitle'))}</h3><div style="height:14px"></div>
       <div class="setgroup">
-        <div class="setrow"><span class="sl">${esc(t('language'))}</span>
+        <div class="setrow"><span class="sl"><span class="sico">${ICON_GLOBE}</span><span>${esc(t('language'))}</span></span>
           <div class="seg" role="radiogroup" aria-label="${esc(t('language'))}"><button role="radio" data-lang="en" class="${LANG==='en'?'on':''}" aria-checked="${LANG==='en'}" lang="en">English</button><button role="radio" data-lang="hi" class="${LANG==='hi'?'on':''}" aria-checked="${LANG==='hi'}" lang="hi">हिंदी</button></div></div>
-        <div class="setrow"><span class="sl">${esc(t('sound'))}<small>${esc(t('soundSub'))}</small></span>
+        <div class="setrow"><span class="sl"><span class="sico${A.on?' on':''}">${A.on?ICON_SND_ON:ICON_SND_OFF}</span><span>${esc(t('sound'))}<small>${esc(t('soundSub'))}</small></span></span>
           <button class="switch${A.on?' on':''}" id="setSnd" role="switch" aria-checked="${A.on}" aria-label="${esc(t('sound'))}"><i></i></button></div>
-        <button class="setrow" id="setBoot"><span class="sl">${esc(t('tableRow'))}<small>${esc(t('tableRowSub',{boot:money(S.boot),limit:lim}))}</small></span>${CHEV.replace('class="chev"','class="chev" style="transform:rotate(-90deg)"')}</button>
+        <button class="setrow" id="setBoot"><span class="sl"><span class="sico">${ICON_RULES}</span><span>${esc(t('tableRow'))}<small>${esc(t('tableRowSub',{boot:money(S.boot),limit:lim,blind:t(S.blindMode?'blindOn':'blindOff')}))}</small></span></span>${CHEV.replace('class="chev"','class="chev" style="transform:rotate(-90deg)"')}</button>
       </div>
       <div class="about">
         <div class="note">${esc(t('savedNote'))}</div>
