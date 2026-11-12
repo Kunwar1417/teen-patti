@@ -9,7 +9,7 @@ A single-file web app (`index.html`) for tracking bets during Teen Patti nights 
 - Money is whole rupees (integers). Every round's nets must sum to exactly ₹0. Never break this.
 - Never use em dashes in any user-facing text.
 - Plain, friendly English in the UI. Say "bet", never "chaal" or "chal". Standard table words are fine: boot, pack, show.
-- This is a scorekeeper/tracker, not a game. Store name is "Teen Patti Dealer" (Play title "Teen Patti Dealer: Pot Tracker", launcher label "TP Dealer"). Never describe it as a game, casino or gambling app in UI or store copy.
+- This is a scorekeeper/tracker, not a game. App name is "Teen Patti Hisaab" (Play title "Teen Patti Hisaab: Settle Up" because of the 30-char limit; App Store name "Teen Patti Hisaab" + subtitle "Score & Settle"; launcher/home-screen label "TP Hisaab"). Never use "Dealer". The upload-key folder is still named `~/TeenPattiDealer-signing` (internal only). Never describe it as a game, casino or gambling app in UI or store copy.
 
 ## Design system (tokens in `:root`)
 - White page, ink `#0D1B1E`, mist `#F3F5F4` for soft fills, gold gradient for primary actions, green `#0B9467` for gains, red `#DE4247` for losses.

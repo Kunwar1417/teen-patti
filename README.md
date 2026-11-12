@@ -1,4 +1,4 @@
-# Teen Patti Dealer
+# Teen Patti Hisaab
 
 A pot tracker and scorekeeper for Teen Patti nights with friends. It does not run any game and never handles money; it just keeps the table's maths straight.
 
