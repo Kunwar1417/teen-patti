@@ -719,10 +719,11 @@ function renderWheel(hitId,pulse){
   svg.querySelectorAll('.slice').forEach(el=>el.addEventListener('click',e=>{ e.preventDefault(); addBet(el.getAttribute('data-id')); }));
 }
 function animatePot(){
-  const tok=++potAnim, from=shownPot, to=pot(), t0=performance.now(), dur=REDUCED?1:340;
+  const tok=++potAnim, from=shownPot, to=pot(), t0=performance.now(), dur=340;
+  if(REDUCED){ shownPot=to; const el=$('#potVal'); if(el){ el.textContent=money(to); el.setAttribute('font-size',potFont(to)); } return; }
   const step=now=>{
     if(tok!==potAnim) return;
-    const k=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-k,3);
+    const k=Math.max(0,Math.min(1,(now-t0)/dur)), e=1-Math.pow(1-k,3);
     shownPot=Math.round(from+(to-from)*e);
     const el=$('#potVal'); if(el){ el.textContent=money(shownPot); el.setAttribute('font-size',potFont(shownPot)); }
     if(k<1) requestAnimationFrame(step); else shownPot=to;
@@ -1010,8 +1011,9 @@ function showWin(r){
     <ul class="lines win-list">${lines}</ul>
     <button class="btn gold big shine" id="winGo">Start Round ${S.round}</button></div>`;
   el.classList.add('open');
-  const target=split?r.pot:r.pot, t0=performance.now(), dur=REDUCED?1:1100;
-  const tick=now=>{ const k=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-k,4), a=$('#winAmt'); if(a) a.textContent=money(Math.round(target*e)); if(k<1&&el.classList.contains('open')) requestAnimationFrame(tick); };
+  const target=r.pot, t0=performance.now(), dur=1100;
+  if(REDUCED){ const a=$('#winAmt'); if(a) a.textContent=money(target); }
+  const tick=REDUCED?()=>{}:now=>{ const k=Math.max(0,Math.min(1,(now-t0)/dur)), e=1-Math.pow(1-k,4), a=$('#winAmt'); if(a) a.textContent=money(Math.round(target*e)); if(k<1&&el.classList.contains('open')) requestAnimationFrame(tick); };
   requestAnimationFrame(tick);
   sfx.fanfare(split); celebrate(r.winners.map(id=>colorFor(id)));
   el.querySelector('#winGo').addEventListener('click',()=>{ sfx.shuffle(); el.classList.remove('open'); el.innerHTML=''; });
