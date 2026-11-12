@@ -13,4 +13,4 @@ Play it: https://kunwar1417.github.io/teen-patti/
 
 Privacy policy: https://kunwar1417.github.io/teen-patti/privacy.html
 
-Questions or bugs: open an issue on this repo.
+Made by Never Settle Lab. Questions or bugs: neversettlelab@gmail.com
