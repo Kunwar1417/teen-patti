@@ -1,2 +1,4 @@
 .DS_Store
 native/
+# Private session context (accounts, status, preferences). Local only.
+PROJECT-CONTEXT.md

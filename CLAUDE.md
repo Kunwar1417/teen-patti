@@ -2,6 +2,8 @@
 
 A single-file web app (`index.html`) for tracking bets during Teen Patti nights with friends. Used on phones and tablets. Hosted on GitHub Pages at `https://kunwar1417.github.io/teen-patti/` and packaged for Google Play from `native/` (see below). Current version: 1.1.
 
+**Start of every session:** if `PROJECT-CONTEXT.md` exists in this folder, read it first. It is local-only (gitignored) and holds the publishing status, accounts, past decisions and how the owner likes to work. Update it at the end of a session when status or decisions change; keep this file (CLAUDE.md) for how the code works.
+
 ## Ground rules
 - Keep it ONE self-contained `index.html` (inline CSS + JS). No build step, no frameworks, no npm, no backend unless explicitly asked. (The `native/` store wrapper is the only npm project and never changes how `index.html` is written.)
 - Only external loads: Google Fonts (Bricolage Grotesque for display, Manrope for body, Baloo 2 for Devanagari only). Everything else (sounds, icons, confetti) is generated in code.
@@ -92,15 +94,26 @@ S = {
 - Upload key: `~/TeenPattiDealer-signing/` (outside the project, never commit). Bump `versionCode` in `native/android/app/build.gradle` for every Play upload after the first; keep `versionName` and `APP_VERSION` in `index.html` in step.
 - Icons: `native/assets/icon-src.html` renders all icon PNGs; `npm run icons` regenerates Android sizes.
 - Store kit: `native/store/` (listing text, screenshots, feature graphic). Privacy policy: `privacy.html` (linked from Settings and Play Console).
+- Release files: `native/release/TeenPattiHisaab-<versionName>-<versionCode>.aab` (upload) and `TeenPattiHisaab-test.apk` (sideload). Copy from `native/android/app/build/outputs/` after each build and verify with `jarsigner -verify`.
+
+## Testing and tooling (`native/tools/`, local only)
+- `node native/tools/smoke-test.mjs`: drives the real `index.html` in headless Chrome with real clicks; 20 checks (boot, bets, undo, Blind mode 2×, award nets = ₹0, tabs, reopen, drag reorder, boot sheet, Hindi). Exit code 0 = pass. Extend it when you add a feature.
+- `node native/tools/store-shots.mjs`: re-renders the 8 Play screenshots (1080×1920) with a sample game. Run after visible UI changes.
+- `node native/tools/build-previews.mjs [outDir]`: builds the two private preview artifacts (app + iPhone frame with QR); URLs are in `PROJECT-CONTEXT.md`.
+- Phone-width visual checks: headless Chrome's minimum window is 500px, so load the page in a centered 390×844 iframe and screenshot; use `--force-prefers-reduced-motion` (virtual time doesn't run animation frames) and a separate `--user-data-dir` per run (file:// pages share localStorage).
+- Android emulator: AVD `tpd36` (Android 16). Always start it with `-gpu host`; the software renderer shows fake duplicated/blank frames.
 
 ## Ideas not built yet
-- Saved game nights by date + all-time leaderboard
-- Live sync between phone and tablet (would need a small free backend)
-- Player stats: win rate, biggest pot, streaks
+- Blind mode refinements: one-way seen (only Undo reverts), a single "Raise" action per player, show-cost helper, blind-round limit reminder
 - First-game setup (type names + pick boot on first open)
+- Saved game nights by date + all-time leaderboard; player stats (win rate, biggest pot, streaks)
+- Live sync between phone and tablet (would need a small free backend)
+- Dark mode; accessibility fix for the nested buttons inside player cards
 - iOS App Store build from the same `native/` project (needs Xcode)
 
 ## Before you ship any change
-1. Open `index.html` in a browser at phone width and play a few rounds, in English and in Hindi.
-2. Check: collect boot, bets, blind/seen, custom boot, pot limit, pack/unpack, undo, split pot, reopen round, drag to reorder, settlement, tabs, and that every round's nets add to ₹0.
-3. Make sure an old save still loads (don't rename the storage key).
+1. Run `node native/tools/smoke-test.mjs` (all checks must pass) and `node --check` on the extracted script if you edited JS.
+2. Look at it at phone width (390px), in English and in Hindi; check that every round's nets add to ₹0.
+3. Make sure an old save still loads (don't rename the storage key; add migrations in `load()` for new fields).
+4. Web: commit and push to `main` (goes live on GitHub Pages). Store: `cd native && npm run sync`, build, copy to `native/release/`, re-render screenshots if the UI changed, bump `versionCode` if a build was already uploaded.
+5. Update this file and `PROJECT-CONTEXT.md` if behaviour, layout, decisions or status changed.
