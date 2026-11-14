@@ -5,7 +5,7 @@ A single-file web app (`index.html`) for tracking bets during Teen Patti nights 
 **Start of every session:** if `PROJECT-CONTEXT.md` exists in this folder, read it first. It is local-only (gitignored) and holds the publishing status, accounts, past decisions and how the owner likes to work. Update it at the end of a session when status or decisions change; keep this file (CLAUDE.md) for how the code works.
 
 ## Ground rules
-- Keep it ONE self-contained `index.html` (inline CSS + JS). No build step, no frameworks, no npm, no backend unless explicitly asked. (The `native/` store wrapper is the only npm project and never changes how `index.html` is written.)
+- Keep it ONE self-contained `index.html` (inline CSS + JS). The only other web files are `privacy.html` and the home-screen icon files + `manifest.webmanifest`. No build step, no frameworks, no npm, no backend unless explicitly asked. (The `native/` store wrapper is the only npm project and never changes how `index.html` is written.)
 - Only external loads: Google Fonts (Bricolage Grotesque for display, Manrope for body, Baloo 2 for Devanagari only). Everything else (sounds, icons, confetti) is generated in code.
 - Mobile first: test at iPhone width (390px). No horizontal page scroll; only tables may scroll sideways inside their own container.
 - Money is whole rupees (integers). Every round's nets must sum to exactly ₹0. Never break this.
@@ -92,13 +92,14 @@ S = {
 - `index.html` has a `NATIVE` layer (null in browsers): Haptics for `buzz()`, KeepAwake, Android back button (closes sheet/win/settle, then goes back to the Table tab, else minimizes), external links via top-level navigation.
 - Build: `cd native && npm run apk` (test APK) / `npm run aab` (signed Play bundle). Needs `JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home`; SDK at `/opt/homebrew/share/android-commandlinetools`.
 - Upload key: `~/TeenPattiDealer-signing/` (outside the project, never commit). Bump `versionCode` in `native/android/app/build.gradle` for every Play upload after the first; keep `versionName` and `APP_VERSION` in `index.html` in step.
-- Icons: `native/assets/icon-src.html` renders all icon PNGs; `npm run icons` regenerates Android sizes.
+- Icons ("Midnight Gold": three fanned gold cards, ivory front card with a big Bricolage "3", on deep ink): `native/assets/icon-src.html` is the single source. Render its modes with headless Chrome into `native/assets/`: `#full` → icon-only.png, `#fg` → icon-foreground.png (transparent; @capacitor/assets insets it 16.7%, so the 1024 square is the visible icon), `#bg` → icon-background.png, `#splash` at 2732px → splash.png + splash-dark.png; 512px of `#full` → `native/store/play-icon-512.png`. `#mark` feeds `store/feature-graphic.html`. Then `npm run icons` regenerates Android sizes. Web icons are real files at the repo root (iOS ignores data-URI touch icons): `apple-touch-icon.png` (180), `icon-192.png`, `icon-512.png` (resized from `native/assets/icon-only.png`) plus `manifest.webmanifest`. The header `.mark` is the same icon as inline SVG.
 - Store kit: `native/store/` (listing text, screenshots, feature graphic). Privacy policy: `privacy.html` (linked from Settings and Play Console).
 - Release files: `native/release/TeenPattiHisaab-<versionName>-<versionCode>.aab` (upload) and `TeenPattiHisaab-test.apk` (sideload). Copy from `native/android/app/build/outputs/` after each build and verify with `jarsigner -verify`.
 
 ## Testing and tooling (`native/tools/`, local only)
 - `node native/tools/smoke-test.mjs`: drives the real `index.html` in headless Chrome with real clicks; 20 checks (boot, bets, undo, Blind mode 2×, award nets = ₹0, tabs, reopen, drag reorder, boot sheet, Hindi). Exit code 0 = pass. Extend it when you add a feature.
 - `node native/tools/store-shots.mjs`: re-renders the 8 Play screenshots (1080×1920) with a sample game. Run after visible UI changes.
+- `node native/tools/design-kit-shots.mjs`: renders 16 clean 1290×2794 captures of every main screen into `native/store/design-kit/app-screens/` (the kit + `BRIEF.md` given to Claude Design for store marketing assets). Re-run after visible UI changes.
 - `node native/tools/build-previews.mjs [outDir]`: builds the two private preview artifacts (app + iPhone frame with QR); URLs are in `PROJECT-CONTEXT.md`.
 - Phone-width visual checks: headless Chrome's minimum window is 500px, so load the page in a centered 390×844 iframe and screenshot; use `--force-prefers-reduced-motion` (virtual time doesn't run animation frames) and a separate `--user-data-dir` per run (file:// pages share localStorage).
 - Android emulator: AVD `tpd36` (Android 16). Always start it with `-gpu host`; the software renderer shows fake duplicated/blank frames.
